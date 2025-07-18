@@ -40,14 +40,16 @@ def carregar_mapeamento_gestora_fundo(caminho_arquivo_excel):
         return None, None
 
 
+# Substitua a função antiga por esta em seu app.py
+
 @st.cache_data
 def carregar_dados_historicos(caminho_da_pasta, meses, _lista_de_fundos):
     if not _lista_de_fundos:
         st.warning("A lista de fundos para análise está vazia.")
         return None
 
-    # O caminho agora aponta para a pasta com os arquivos otimizados
-    caminho_da_pasta = "dados_filtrados"
+    # A linha "caminho_da_pasta = 'dados_filtrados'" foi REMOVIDA.
+    # Agora o código usará o caminho principal, como solicitado.
     lista_dfs_completos = []
 
     for mes in meses:
@@ -66,19 +68,19 @@ def carregar_dados_historicos(caminho_da_pasta, meses, _lista_de_fundos):
                 df_blc8.rename(columns={'DS_ATIVO': 'CD_ATIVO'}, inplace=True)
 
         except FileNotFoundError:
-            st.error(f"Arquivos otimizados para o mês {mes} não encontrados na pasta '{caminho_da_pasta}'.")
-            st.info("Por favor, execute o script 'pre_processar_dados.py' primeiro.")
+            st.error(f"Arquivos .parquet para o mês {mes} não encontrados na pasta principal.")
+            st.info("Certifique-se de que os arquivos Parquet filtrados estão na mesma pasta que o app.py.")
             st.stop()
             continue
-
-        # Como os dados já estão filtrados, não precisa mais do .isin(...) aqui
+        
         carteira_unificada = pd.concat([df_blc4, df_blc8], ignore_index=True)
-
+        
         carteira_completa = pd.merge(carteira_unificada, df_pl[['CNPJ_FUNDO_CLASSE', 'VL_PATRIM_LIQ']],
                                      on='CNPJ_FUNDO_CLASSE', how='left')
         lista_dfs_completos.append(carteira_completa)
 
     return pd.concat(lista_dfs_completos, ignore_index=True) if lista_dfs_completos else None
+
 
 
 @st.cache_data
